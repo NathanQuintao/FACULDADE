@@ -1,0 +1,45 @@
+CREATE DATABASE aula03;
+use aula03;
+
+CREATE TABLE PET
+(NumPet int unsigned primary key,
+NomePet varchar(40) not null,
+TipoPet  varchar(30)
+
+ CREATE TABLE TRUQUE 
+(IdTruque varCHAR(10) unsigned NOT NULL,
+ NomeTruque varCHAR(30),
+ PRIMARY KEY(IdTruque));
+
+CREATE TABLE TRUQUEPET
+(
+ LocalAprend varCHAR(30) NOT NULL,
+ NivelHabil int(10), 
+ NumPet int(02) UNSIGNED NOT NULL,
+ IdTruque varCHAR(10) NOT NULL,
+    PRIMARY KEY(NumPet,IdTruque));
+
+ 
+INSERT INTO PET VALUES 
+ (18,'Lulu','Cao'), (09,'Leao','Cao'), 
+(11,'Thor','Cao'), (02,'Princesa','Gato'), 
+(14,'Punk','Calopsita'), (05,'Loba','Lobo'), 
+(13,'Igua','Gato'), (07,'Tuquinha','Canario'), 
+(15,'Manhoso','Calopsita'), (10,'Xaninho','Gato'), (08,'Duque','Gato'),
+ (03,'Xulipa','Arara'), (16,'Tatinha','Iguana'), 
+ (21,'Tagarela','Papagaio'), (24,'Malucao','Cao'), 
+ (12,'Bichano','Gato'), (06,'Rock','Gato'); 
+ 
+
+ 
+  INSERT INTO TRUQUE VALUES
+(1,'ROLAR', 'ROLAR NO CHAO'), (2,'DEITAR', 'PET DEITADO'),
+(3,'PATA', 'DAR A PATA'), (4,'SENTAR', 'PET SENTADO'),
+(5,'PULAR', 'PULAR OBSTACULO'), (6,'SEGUIR', 'SEGUIR DONO'),
+(7,'LEVANTAR', 'LEVANTAR PATAS DIANTEIRAS'),
+(8,'ATACAR', 'ATACAR o ADVERSARIO'),
+(9,'PARAR', 'PET PARAR DE ANDAR'),
+(10,'DEDO', 'POUSAR NO DEDO'),
+(11,'NECES', 'FAZER AS NECESSIDADES NO LOCAL'),
+(12,'VOAR', 'VOAR PARA A GAIOLA');
+
