@@ -1,0 +1,95 @@
+create database Universidade;
+use Universidade;
+
+create table aluno
+(alMatr int unsigned zerofill not null,
+alNome char(30), alCurso char(25),
+alDtNasc date, alDescont int(2),
+Primary key(alMatr));
+
+create table disciplina 
+(disCod int(2) unsigned zerofill not null,
+disNome char(25),
+disHoras int(2), disPreco decimal(7,2),
+Primary key(disCod));
+
+create table dis_alu
+(disCod int(2) unsigned zerofill not null, 
+alMatr int unsigned zerofill not null,
+media decimal(3,1),
+primary key(disCod, alMatr));
+
+insert into aluno values
+(123,"Mario","ciencias computação","1995-10-10",10),
+(124,"ana paula","direito","2001-05-05",15),
+(125,"mariana","ciencias computação","2000-03-03",5),
+(126,"Jose Silva","ciencias computação","1998-02-02",20),
+(127,"Ari Silva","sistemas","1997-06-06",15),
+(128,"Luiz Suarez","ed fisica","1992-08-08",10),
+(129,"Fabio Silva","direito","1999-09-09",5),
+(135,"Epaminondas Silva","direito","2002-06-01",15),
+(130,"Eva Silva","ed fisica","2001-07-07",10);
+
+insert into disciplina values
+(11,"Eng Software",80,250.00),
+(14,"Ingles",40,100.00),
+(16,"Português",40,140.00),
+(19,"Matemática",40,220.00),
+(12," Ling pog java",80,280.00),
+(15,"Banco de dados",80,250.00);
+
+insert into dis_alu values
+(16, 124, 6.0), (19, 124, 8.5), (11,130,4.5),
+(15, 127, 5.0), (14, 130, 7.0), (15, 129, 7.5),
+(12, 1127,3.5), (16, 125, 6.0) , (19, 127, 5.5),
+(11, 123, 9.0), (15, 130, 10.0), (16, 130, 10.0),
+(16, 127, 6.5), (12, 124, 8.5), (14, 128, 10.0);
+
+Select aluno.alMatr, alNome, disNome
+from aluno left join dis_alu
+on aluno.alMatr = dis_alu.alMatr
+left join disciplina
+on dis_alu.disCod = disciplina.disCod
+where alDtNasc >= 1998
+order by alNome;
+
+create table tab_aluno as 
+select aluno.alMatr, alNome, alDtNasc,
+disciplina.disCod, disNome, media
+from aluno inner join dis_alu
+on aluno.alMatr = dis_alu.alMatr
+inner join disciplina
+on dis_alu.disCod= disciplina.disCod;
+
+select alMatr, alNome, disNome,
+year(alDtNasc)
+from tab_aluno
+where year(alDtNasc) >= 1990 and
+year(alDtNasc) <=2000;
+
+select aluno.alMatr, alNome, disNome,
+year(alDtNasc)
+from aluno inner join dis_alu
+on aluno.alMatr = dis_alu.alMatr
+inner join disciplina
+on dis_alu.disCod = disciplina.disCod
+where year(alDtNasc) >=1998;
+
+select alMatr, alNome, disNome,
+year(alDtNasc), media
+from tab_aluno;
+
+select alNome, tab_aluno.disNome,
+disPreco
+from tab_aluno inner join disciplina
+on tab_aluno.disCod = disciplina.disCod
+order by tab_aluno.alNome;
+
+select tab_aluno.alNome,
+tab_aluno.disNome,
+alDescont, disHoras
+from tab_aluno inner join aluno
+on tab_aluno.alMatr =aluno.alMatr
+inner join disciplina
+on tab_aluno.disCod = disciplina.disCod
+order by tab_aluno.alNome;
