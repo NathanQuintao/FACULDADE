@@ -1,27 +1,29 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
-package javabd;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class JavaBD {
-    
-    
- public static void main(String[] args) throws SQLException{
-     Class.forName("com.mysql.jdbc.Driver");
+public class App {
+    public static void main(String[] args) throws Exception {
+
+             Class.forName("com.mysql.jdbc.Driver");
      
         String url = "jdbc:mysql://localhost:3306/escola";
         String usuario = "root";
-        String senha = "mysql";
+        String senha = "root";
 
         try (Connection conexao = DriverManager.getConnection(url, usuario, senha)) {
             System.out.println("✅ Conectado com sucesso!");
 
+            String sqlCreate = "CREATE TABLE IF NOT EXISTS alunos (" +
+                   "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                   "nome VARCHAR(45) NOT NULL, " +
+                   "idade INT NOT NULL)";
+                try (PreparedStatement stmt = conexao.prepareStatement(sqlCreate)) {
+                stmt.executeUpdate();
+                System.out.println("Tabela criada (ou já existia).");
+            }
             // Inserindo um aluno
             String sqlInsert = "INSERT INTO alunos (nome, idade) VALUES (?, ?)";
             try (PreparedStatement stmt = conexao.prepareStatement(sqlInsert)) {
@@ -46,5 +48,8 @@ public class JavaBD {
         } catch (SQLException e) {
             System.err.println("Erro de conexão: " + e.getMessage());
         }
+        catch (ClassNotFoundException e) {
+            System.err.println("Driver JDBC não encontrado: " + e.getMessage());
     }
+}
 }
