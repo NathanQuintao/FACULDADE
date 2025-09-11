@@ -1,0 +1,28 @@
+Create Database estoque;
+use estoque;
+CREATE TABLE Produtos (
+    CodProd INT PRIMARY KEY,
+    NomeProd CHAR(35),
+    CategoriaProd CHAR(20),
+    PrecoUnitProd DECIMAL(7,2)
+);
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE InsereProduto(
+    IN cod INT,
+    IN nome CHAR(35),
+    IN cat CHAR(20),
+    IN prec DECIMAL(7,2)
+)
+BEGIN
+    INSERT INTO Produtos (CodProd, NomeProd, CategoriaProd, PrecoUnitProd)
+    VALUES (cod, nome, cat, prec);
+END $$
+
+DELIMITER ;
+
+CALL InsereProduto(2, 'Notebook', 'Eletronico', 3500.00);
+CALL InsereProduto(1, 'Teclado Mecanico', 'Periferico', 250.00);
