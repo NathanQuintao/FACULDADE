@@ -1,0 +1,75 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class App {
+    public static void main(String[] args) throws Exception {
+
+             Class.forName("com.mysql.cj.jdbc.Driver");
+     
+        String url = "jdbc:mysql://localhost:3306/loja";
+        String usuario = "root";
+        String senha = "root";
+
+        try (Connection conexao = DriverManager.getConnection(url, usuario, senha)) {
+            System.out.println("✅ Conectado com sucesso!");
+
+            String sqlCreate = "CREATE TABLE produtos (" +
+                   "codigo INT AUTO_INCREMENT PRIMARY KEY, " +
+                   "nomeProduto VARCHAR(45) NOT NULL, " +
+                   "precoProduto INT NOT NULL," +
+                   "estoque INT)";
+                try (PreparedStatement stmt = conexao.prepareStatement(sqlCreate)) {
+                stmt.executeUpdate();
+                System.out.println("Tabela criada (ou já existia).");
+            }
+
+            String sqlInsert = "INSERT INTO produtos (nomeProduto, precoProduto, estoque) VALUES (?, ?, ?)";
+            try (PreparedStatement stmt = conexao.prepareStatement(sqlInsert)) {
+                stmt.setString(1, "Makita");
+                stmt.setInt(2, 300);
+                stmt.setInt(3, 10);
+                stmt.executeUpdate();
+                System.out.println("Produto inserido!");
+            
+                stmt.setString(1, "Furadeira");
+                stmt.setInt(2, 400);
+                stmt.setInt(3, 20);
+                stmt.executeUpdate();
+                System.out.println("Produto inserido!"); 
+            
+                stmt.setString(1, "Serra");
+                stmt.setInt(2, 80);
+                stmt.setInt(3, 50);
+                stmt.executeUpdate();
+                System.out.println("Produto inserido!");
+            }
+
+            String sqlUpdate = "UPDATE produtos SET precoProduto = ? WHERE nomeProduto = ?";
+            try (PreparedStatement stmt = conexao.prepareStatement(sqlUpdate)) {
+                stmt.setInt(1, 250);
+                stmt.setString(2, "precoProduto");
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao executar o UPDATE: " + e.getMessage());}
+            
+
+            
+            String sqlSelect = "SELECT * FROM produtos";
+            try (PreparedStatement stmt = conexao.prepareStatement(sqlSelect);
+                 ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    System.out.println(rs.getInt("codigo") + " - " +
+                                       rs.getString("nomeProduto") + " - " +
+                                       rs.getInt("precoProduto"));
+                }
+            }
+            
+            conexao.close();    
+        } catch (SQLException e) {
+            System.err.println("Erro de conexão: " + e.getMessage());
+        }
+}
+}
