@@ -3,73 +3,116 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class App {
-    public static void main(String[] args) throws Exception {
-
-             Class.forName("com.mysql.cj.jdbc.Driver");
-     
-        String url = "jdbc:mysql://localhost:3306/loja";
+    public static void main(String[] args) {
+        
+        String urlServidor = "jdbc:mysql://localhost:3306"; /
+        String urlDatabase = "jdbc:mysql://localhost:3306/loja"; 
         String usuario = "root";
         String senha = "root";
 
-        try (Connection conexao = DriverManager.getConnection(url, usuario, senha)) {
-            System.out.println("✅ Conectado com sucesso!");
+        // --- ETAPA 1: CRIAR O BANCO DE DADOS ---
+        // Primeiro, nos conectamos ao servidor MySQL para garantir que o banco 'loja' exista.
+        try (Connection conexaoServidor = DriverManager.getConnection(urlServidor, usuario, senha);
+             Statement stmtServidor = conexaoServidor.createStatement()) {
+            
+            stmtServidor.executeUpdate("CREATE DATABASE IF NOT EXISTS loja");
+            System.out.println("✅ Banco de dados 'loja' criado ou já existente.");
 
-            String sqlCreate = "CREATE TABLE produtos (" +
-                   "codigo INT AUTO_INCREMENT PRIMARY KEY, " +
-                   "nomeProduto VARCHAR(45) NOT NULL, " +
-                   "precoProduto INT NOT NULL," +
-                   "estoque INT)";
-                try (PreparedStatement stmt = conexao.prepareStatement(sqlCreate)) {
-                stmt.executeUpdate();
-                System.out.println("Tabela criada (ou já existia).");
+        } catch (SQLException e) {
+            System.err.println("❌ Erro crítico ao criar o banco de dados: " + e.getMessage());
+            e.printStackTrace();
+            return; // Se não for possível criar o DB, o programa não pode continuar.
+        }
+
+        // --- ETAPA 2: OPERAÇÕES NA TABELA 'PRODUTOS' ---
+        // Agora, nos conectamos diretamente ao banco 'loja' para trabalhar com as tabelas.
+        try (Connection conexaoDatabase = DriverManager.getConnection(urlDatabase, usuario, senha)) {
+            System.out.println("✅ Conectado com sucesso ao banco 'loja'!");
+
+            try (Statement stmt = conexaoDatabase.createStatement()) {
+                stmt.executeUpdate("DROP TABLE IF EXISTS produtos");
+                System.out.println("Tabela 'produtos' antiga removida (se existia).");
+
+                String sqlCreate = "CREATE TABLE produtos (" +
+                                   "codigo INT AUTO_INCREMENT PRIMARY KEY, " +
+                                   "nomeProduto VARCHAR(45) NOT NULL, " +
+                                   "precoProduto DECIMAL(10, 2) NOT NULL," +
+                                   "estoque INT)";
+                stmt.executeUpdate(sqlCreate);
+                System.out.println("Tabela 'produtos' criada com sucesso.");
             }
 
+            // --- INSERIR produtos ---
+            System.out.println("\n--- Inserindo produtos ---");
             String sqlInsert = "INSERT INTO produtos (nomeProduto, precoProduto, estoque) VALUES (?, ?, ?)";
-            try (PreparedStatement stmt = conexao.prepareStatement(sqlInsert)) {
+            try (PreparedStatement stmt = conexaoDatabase.prepareStatement(sqlInsert)) {
                 stmt.setString(1, "Makita");
-                stmt.setInt(2, 300);
+                stmt.setBigDecimal(2, new java.math.BigDecimal("300.00"));
                 stmt.setInt(3, 10);
                 stmt.executeUpdate();
-                System.out.println("Produto inserido!");
-            
+                System.out.println("Produto 'Makita' inserido!");
+
                 stmt.setString(1, "Furadeira");
-                stmt.setInt(2, 400);
+                stmt.setBigDecimal(2, new java.math.BigDecimal("400.00"));
                 stmt.setInt(3, 20);
                 stmt.executeUpdate();
-                System.out.println("Produto inserido!"); 
-            
+                System.out.println("Produto 'Furadeira' inserido!");
+
                 stmt.setString(1, "Serra");
-                stmt.setInt(2, 80);
+                stmt.setBigDecimal(2, new java.math.BigDecimal("80.75"));
                 stmt.setInt(3, 50);
                 stmt.executeUpdate();
-                System.out.println("Produto inserido!");
+                System.out.println("Produto 'Serra' inserido!");
             }
 
-            String sqlUpdate = "UPDATE produtos SET precoProduto = ? WHERE nomeProduto = ?";
-            try (PreparedStatement stmt = conexao.prepareStatement(sqlUpdate)) {
-                stmt.setInt(1, 250);
-                stmt.setString(2, "precoProduto");
-
-        } catch (SQLException e) {
-            System.err.println("Erro ao executar o UPDATE: " + e.getMessage());}
-            
-
-            
-            String sqlSelect = "SELECT * FROM produtos";
-            try (PreparedStatement stmt = conexao.prepareStatement(sqlSelect);
+            // --- SELECIONAR antes da atualização ---
+            System.out.println("\n--- Produtos ANTES da ATUALIZAÇÃO ---");
+            String sqlSelect = "SELECT codigo, nomeProduto, precoProduto, estoque FROM produtos";
+            try (PreparedStatement stmt = conexaoDatabase.prepareStatement(sqlSelect);
                  ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    System.out.println(rs.getInt("codigo") + " - " +
-                                       rs.getString("nomeProduto") + " - " +
-                                       rs.getInt("precoProduto"));
+                    System.out.printf("ID: %d | Produto: %-10s | Preço: R$ %.2f | Estoque: %d\n",
+                                      rs.getInt("codigo"),
+                                      rs.getString("nomeProduto"),
+                                      rs.getBigDecimal("precoProduto"),
+                                      rs.getInt("estoque"));
                 }
             }
-            
-            conexao.close();    
+
+            // --- ATUALIZAR o estoque ---
+            System.out.println("\n--- Atualizando estoque da 'Furadeira' ---");
+            String sqlUpdate = "UPDATE produtos SET estoque = ? WHERE nomeProduto = ?";
+            try (PreparedStatement stmt = conexaoDatabase.prepareStatement(sqlUpdate)) {
+                stmt.setInt(1, 25);
+                stmt.setString(2, "Furadeira");
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.println("Estoque do produto 'Furadeira' atualizado com sucesso!");
+                } else {
+                    System.out.println("Nenhum produto encontrado com o nome 'Furadeira' para atualizar.");
+                }
+            }
+
+            // --- SELECIONAR depois da atualização ---
+            System.out.println("\n--- Produtos DEPOIS da ATUALIZAÇÃO ---");
+            try (PreparedStatement stmt = conexaoDatabase.prepareStatement(sqlSelect);
+                 ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                     System.out.printf("ID: %d | Produto: %-10s | Preço: R$ %.2f | Estoque: %d\n",
+                                      rs.getInt("codigo"),
+                                      rs.getString("nomeProduto"),
+                                      rs.getBigDecimal("precoProduto"),
+                                      rs.getInt("estoque"));
+                }
+            }
+
         } catch (SQLException e) {
-            System.err.println("Erro de conexão: " + e.getMessage());
+            System.err.println("❌ Erro de banco de dados ao operar na tabela 'produtos': " + e.getMessage());
+            e.printStackTrace();
         }
+    }
 }
-}
+
