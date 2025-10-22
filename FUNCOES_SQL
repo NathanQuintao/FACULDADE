@@ -1,0 +1,16 @@
+select LOWER(NOME_FUNC) as Nome_Minusculo,
+       UPPER(NOME_FUNC) as Nome_Maiusculo FROM func;
+
+select LTRIM(NOME_FUNC) as Nome_Alinhado,
+       LENGTH(NOME_FUNC) as Tamanho,
+       SUBSTR(NOME_FUNC, 2,5) as Pedaco,
+       CONCAT(NOME_FUNC," ",DEPTO) as NOME_FUNC_DEPTO FROM func;
+select NOME_FUNC as Nome,
+       INSTR(NOME_FUNC,"Caju") as Posicao FROM func;
+select NOME_FUNC as NOME_FUNC, salario as Salario FROM func WHERE INSTR(NOME_FUNC,"Couves") != 0;
+select ABS(-1328),
+    -> MOD(233,2), PI(), POW(3,4),
+    -> SQRT(ID_FUNC) FROM func WHERE ID_FUNC = 8;
+select round(pow(3,4),2);
+select round(pi(),4);
+select CURDATE(), CURTIME(), DATEDIFF(CURDATE(),"2025-01-01");
