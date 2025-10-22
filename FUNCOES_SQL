@@ -9,8 +9,20 @@ select NOME_FUNC as Nome,
        INSTR(NOME_FUNC,"Caju") as Posicao FROM func;
 select NOME_FUNC as NOME_FUNC, salario as Salario FROM func WHERE INSTR(NOME_FUNC,"Couves") != 0;
 select ABS(-1328),
-    -> MOD(233,2), PI(), POW(3,4),
-    -> SQRT(ID_FUNC) FROM func WHERE ID_FUNC = 8;
+       MOD(233,2), PI(), POW(3,4),
+       SQRT(ID_FUNC) FROM func WHERE ID_FUNC = 8;
 select round(pow(3,4),2);
 select round(pi(),4);
 select CURDATE(), CURTIME(), DATEDIFF(CURDATE(),"2025-01-01");
+
+DELIMITER |
+CREATE FUNCTION GastoDep (id int) returns Decimal(7,2) Deterministic Reads sql data
+ Begin
+ DECLARE valorGasto Decimal(7,2) DEFAULT 0;
+ SELECT COUNT(*) * 200.00 INTO valorGasto FROM Dependente WHERE ID_FUNC_DEP = ID;
+ return valorGasto;
+ End;
+ |
+
+ DELIMITER ;
+ select GastoDep(11);
