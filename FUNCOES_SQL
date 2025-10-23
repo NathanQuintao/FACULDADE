@@ -51,3 +51,17 @@ DELIMITER ;
 select DaAumento(1,1026);
 select DaAumento(2,1026);
 select DaAumento(3,1026);
+
+DELIMITER |
+CREATE FUNCTION TotalUnidade (cat varChar(20))
+ RETURNS DECIMAL(7,2)
+  Deterministic
+ Reads sql data
+ Begin
+ DECLARE total DECIMAL(7,2) DEFAULT 0;
+ SELECT SUM(QuantEstoqProd * PrecoUnitProd) INTO total FROM Produtos WHERE CategoriaProd = cat;
+ Return total;
+End |
+
+ Delimiter ;
+ select * from Produtos WHERE CategoriaProd = "Unidade";
