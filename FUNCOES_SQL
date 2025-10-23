@@ -26,3 +26,28 @@ CREATE FUNCTION GastoDep (id int) returns Decimal(7,2) Deterministic Reads sql d
 
  DELIMITER ;
  select GastoDep(11);
+
+
+
+
+USE inventario;
+
+DELIMITER |
+ CREATE FUNCTION DaAumento(cod int, codProduto int)
+    RETURNS DECIMAL(7,2)
+    Deterministic
+    Reads sql data
+    Begin
+    DECLARE novoPreco DECIMAL(7,2) DEFAULT 0;
+    SELECT precoUnitProd INTO novoPreco FROM Produtos WHERE CodProd = codProduto;
+    IF (cod=1) THEN SET novoPreco = novoPreco * 1.10;
+    ELSE IF (COD=2) THEN SET novoPreco = novoPreco * 1.20;
+    ELSE IF (COD=3) THEN SET novoPreco = novoPreco * 1.30;
+    END IF; END IF; END IF;
+    RETURN novoPreco;
+    End |
+DELIMITER ;
+
+select DaAumento(1,1026);
+select DaAumento(2,1026);
+select DaAumento(3,1026);
